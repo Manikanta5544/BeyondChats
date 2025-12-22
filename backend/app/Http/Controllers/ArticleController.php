@@ -2,47 +2,46 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Article;
 use Illuminate\Http\Request;
 
 class ArticleController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
     public function index()
     {
-        //
+        return Article::latest()->get();
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
+    public function show(Article $article)
+    {
+        return $article;
+    }
+
+    public function latest()
+    {
+        return Article::latest()->firstOrFail();
+    }
+
     public function store(Request $request)
     {
-        //
+        $data = $request->validate([
+            'title' => 'required|string',
+            'original_content' => 'required|string',
+            'original_url' => 'nullable|string',
+        ]);
+
+        return Article::create($data);
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(string $id)
+    public function update(Request $request, Article $article)
     {
-        //
+        $article->update($request->all());
+        return $article;
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, string $id)
+    public function destroy(Article $article)
     {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(string $id)
-    {
-        //
+        $article->delete();
+        return response()->noContent();
     }
 }

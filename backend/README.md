@@ -1,59 +1,132 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# BeyondChats – Technical Product Manager Assignment
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+## Overview
+This project implements a backend system to scrape, store, and manage blog articles from BeyondChats.  
+The goal of this assignment is to demonstrate strong problem-solving skills, clean backend architecture, and production-ready decision making under time constraints.
 
-## About Laravel
+### The system:
+- Scrapes the oldest blog articles from BeyondChats
+- Stores them in a PostgreSQL database
+- Exposes full CRUD APIs using Laravel
+- Can be safely re-run without duplicating data
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+The implementation prioritizes correctness, clarity, and maintainability over over-engineering.
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+---
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+## Architecture
+┌─────────────────────────────┐
+│ Artisan CLI Command │
+│ scrape:blogs │
+└─────────────┬───────────────┘
+│
+▼
+┌─────────────────────────────┐
+│ WordPress Post Sitemap │
+│ post-sitemap.xml │
+└─────────────┬───────────────┘
+│
+▼
+┌─────────────────────────────┐
+│ Laravel 11 Backend API │
+│ - Scraper Command │
+│ - Article Model │
+│ - CRUD Controllers │
+└─────────────┬───────────────┘
+│
+▼
+┌─────────────────────────────┐
+│ PostgreSQL Database │
+│ articles table │
+└─────────────────────────────┘
 
-## Learning Laravel
+---
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework. You can also check out [Laravel Learn](https://laravel.com/learn), where you will be guided through building a modern Laravel application.
+## Data Flow
+1. `php artisan scrape:blogs` is executed  
+2. The command fetches the BeyondChats post sitemap  
+3. The oldest blog URLs are identified  
+4. Each article page is fetched and parsed  
+5. Articles are stored in PostgreSQL  
+6. CRUD APIs expose the stored data  
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+---
 
-## Laravel Sponsors
+## Tech Stack
+- Backend Framework: Laravel 11  
+- Language: PHP 8.2  
+- Scraping: Symfony HttpClient, DomCrawler  
+- Database: PostgreSQL  
+- CLI: Laravel Artisan  
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+---
 
-### Premium Partners
+## Local Setup
+### Prerequisites
+- PHP 8.2+
+- Composer
+- PostgreSQL
 
-- **[Vehikl](https://vehikl.com)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Redberry](https://redberry.international/laravel-development)**
-- **[Active Logic](https://activelogic.com)**
+### Backend Setup
+```bash
+cd backend
+composer install
+cp .env.example .env
+php artisan key:generate
+php artisan migrate
+php artisan serve
+php artisan scrape:blogs --limit=5   #Scraping oldest Blog Articles
+```
+## API endpoints
+All endpoints are prefixed with /api.
 
-## Contributing
+GET -    /api/articles
+GET -    /api/articles/{id}
+POST-    /api/articles
+PUT	-    /api/articles/{id}
+DELETE - /api/articles/{id}
+GET	-   /api/articles/latest
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+## Database Design
 
-## Code of Conduct
+The system uses a single articles table to keep the data model simple and extensible.
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+Key fields:
+- title
+- original_url
+- original_content
+- enhanced_content
+- scraped_at
+- created_at
 
-## Security Vulnerabilities
+Duplicate articles are avoided by checking existing URLs before insertion.
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+## Key Engineering Decisions
+### Sitemap-Based Scraping
 
-## License
+The /blogs page on BeyondChats is client-side rendered and does not reliably expose a server-rendered “last page”.
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+To correctly fetch the oldest blog posts, the implementation uses the WordPress post sitemap, which:
+- Contains all published blog articles
+- Preserves chronological ordering
+- Avoids the need for headless browsers
+- Is reliable and production-safe
+
+This ensures deterministic and repeatable scraping.
+
+## Trade-offs and Assumptions
+
+1. No Puppeteer or Playwright
+2. No authentication or authorization
+3. No background jobs or queues
+4. Oldest articles inferred from sitemap ordering
+5. Single-table database design for simplicity
+
+All trade-offs were made consciously to optimize for clarity and correctness.
+
+## Known Limitations
+
+1. Relies on sitemap availability
+2. HTML parsing assumes semantic markup
+3. APIs do not support pagination or filtering
+4. AI-based enhancement is not implemented in this phase
