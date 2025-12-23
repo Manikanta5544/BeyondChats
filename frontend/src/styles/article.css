@@ -1,0 +1,141 @@
+
+.article-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.article-list li {
+  padding: 0.9rem 1rem;
+  border-radius: var(--radius-md);
+  margin-bottom: 0.5rem;
+  cursor: pointer;
+  background: var(--bg-muted);
+  transition: background var(--transition-fast),
+              transform var(--transition-fast),
+              box-shadow var(--transition-fast);
+  border-left: 3px solid transparent;
+}
+
+.article-list li.active {
+  background: linear-gradient(90deg, #e3f2fd, #ffffff);
+  border-left: 4px solid #1976d2;
+  font-weight: 500;
+}
+
+.article-detail .content p {
+  margin-bottom: 1.25rem;
+  line-height: 1.8;
+  font-size: 1rem;
+}
+
+.article-detail .content h2,
+.article-detail .content h3 {
+  margin-top: 2rem;
+  margin-bottom: 1rem;
+}
+
+.article-detail .content ul {
+  padding-left: 1.25rem;
+  margin-bottom: 1.5rem;
+}
+
+.article-detail .content li {
+  margin-bottom: 0.5rem;
+}
+
+
+.article-list li:hover {
+  background: #eef2ff;
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-sm);
+}
+
+.article-list li.active {
+  background: var(--brand-soft);
+  border-left-color: var(--brand-primary);
+}
+
+.article-list h4 {
+  font-size: 0.95rem;
+  margin-bottom: 0.35rem;
+  color: var(--text-primary);
+}
+
+
+.status-badge {
+  display: inline-block;
+  padding: 0.15rem 0.6rem;
+  font-size: 0.7rem;
+  border-radius: 999px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+}
+
+.status-badge.pending {
+  background: var(--status-pending-bg);
+  color: var(--status-pending-text);
+}
+
+.status-badge.enhanced {
+  background: var(--status-enhanced-bg);
+  color: var(--status-enhanced-text);
+}
+
+.article-detail {
+  background: var(--bg-surface);
+  border-radius: var(--radius-lg);
+  padding: 2rem;
+  box-shadow: var(--shadow-md);
+}
+
+.article-detail .content {
+  margin-top: 1.25rem;
+  line-height: 1.75;
+}
+
+.article-detail .content p {
+  margin-bottom: 1rem;
+}
+
+.compare-grid h3 {
+  margin-bottom: 1rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid var(--border-light);
+}
+
+.references {
+  margin-top: 2.5rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--border-light);
+}
+
+.references h4 {
+  font-size: 1rem;
+  margin-bottom: 0.75rem;
+  color: var(--text-secondary);
+}
+
+.references ul {
+  list-style: none;
+  padding: 0;
+}
+
+.references li {
+  padding: 0.45rem 0;
+  font-size: 0.9rem;
+  border-bottom: 1px dashed var(--border-light);
+}
+
+.references li:last-child {
+  border-bottom: none;
+}
+
+.article-meta {
+  display: flex;
+  gap: 1.5rem;
+  margin: 0.75rem 0 1rem;
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}

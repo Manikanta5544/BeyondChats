@@ -101,19 +101,62 @@ class ScrapeBeyondChatsBlogs extends Command
 
                 $title = trim($page->filter('h1')->first()->text());
 
+                // $content = null;
+                // foreach (['article', '.entry-content', 'main', '.content'] as $selector) {
+                //     if ($page->filter($selector)->count() > 0) {
+                //         $content = trim($page->filter($selector)->first()->html());
+                //         break;
+                //     }
+                // }
+
+                // if (!$content || strlen(strip_tags($content)) < 150) {
+                //     $this->line('→ Skipped (insufficient content)');
+                //     $this->newLine();
+                //     continue;
+                // }
+
                 $content = null;
-                foreach (['article', '.entry-content', 'main', '.content'] as $selector) {
+
+                $selectors = [
+                    'article .entry-content',
+                    'article',
+                    '.entry-content',
+                    '.post-content',
+                    'main'
+                ];
+
+                foreach ($selectors as $selector) {
                     if ($page->filter($selector)->count() > 0) {
-                        $content = trim($page->filter($selector)->first()->html());
-                        break;
+                        $text = trim(
+                            preg_replace(
+                                '/\s+/',
+                                ' ',
+                                $page->filter($selector)->first()->text()
+                            )
+                        );
+
+                        // Ensure this is real article content
+                        if (strlen($text) > 600) {
+                            $content = $text;
+                            break;
+                        }
                     }
                 }
 
-                if (!$content || strlen(strip_tags($content)) < 150) {
-                    $this->line('→ Skipped (insufficient content)');
+                $normalized = trim(preg_replace('/\s+/', ' ', $content));
+                $fingerprint = substr($normalized, 0, 300);
+
+                if (
+                    Article::whereRaw(
+                        'LEFT(original_content, 300) = ?',
+                        [$fingerprint]
+                    )->exists()
+                ) {
+                    $this->line('→ Skipped (duplicate article content detected)');
                     $this->newLine();
                     continue;
                 }
+
 
                 Article::create([
                     'source'           => 'beyondchats',
