@@ -1,9 +1,12 @@
 {
-  "name": "ai-worker",
+  "name": "beyondchats-ai-worker",
   "version": "1.0.0",
   "main": "index.js",
+  "private": true,
+  "type": "module",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node src/index.js"
   },
   "keywords": [],
   "author": "",
@@ -15,6 +18,7 @@
     "cheerio": "^1.1.2",
     "dotenv": "^17.2.3",
     "jsdom": "^27.3.0",
+    "express": "^4.19.0",
     "openai": "^6.15.0"
   }
 }
