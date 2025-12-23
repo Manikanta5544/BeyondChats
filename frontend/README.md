@@ -1,16 +1,184 @@
-# React + Vite
+# BeyondChats – Frontend (Phase 3)
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+## Overview
+The BeyondChats Frontend is a React-based single-page application (SPA) designed to visualize scraped and AI-enhanced articles from the Laravel backend. It allows reviewers to clearly compare original vs AI-enhanced content, inspect enhancement status, and view external references used during AI processing.
+This frontend acts as a validation and inspection layer for the AI enhancement pipeline, allowing reviewers to verify correctness, references, and content transformations.
 
-Currently, two official plugins are available:
+This frontend intentionally focuses on clarity, correctness, and maintainability rather than visual overengineering, aligning with real-world internal dashboards and reviewer expectations.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## Responsibilities
 
-## React Compiler
+The frontend is responsible for:
+- Fetching articles from the Laravel API
+- Displaying a list of all scraped articles
+- Showing original and enhanced content
+- Rendering side-by-side comparisons for enhanced articles
+- Displaying reference URLs used by the AI Worker
+- Handling loading, empty, and error states gracefully
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## Architecture
+```
+┌──────────────────┐
+│  React Frontend  │
+│  (Vite + React)  │
+│  Port: 5173      │
+└────────┬─────────┘
+         │ HTTP (GET)
+         ▼
+┌──────────────────┐
+│  Laravel API     │
+│  Articles API    │
+│  Port: 8000      │
+└──────────────────┘
+```
 
-## Expanding the ESLint configuration
+The frontend is read-only by design, consuming backend data without mutating state directly.
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+## Tech Stack
+
+- **React 18** – Component-based UI
+- **Vite** – Fast dev server and build tool
+- **Vanilla CSS** – Custom layout and styling (no UI frameworks)
+- **Fetch API** – Backend communication
+- **ES Modules** – Modern JavaScript standard
+
+## Project Structure
+```
+frontend/
+├── src/
+│   ├── api/
+│   │   └── articles.js          # Laravel API client
+│   ├── components/
+│   │   ├── ArticleList.jsx      # Sidebar list of articles
+│   │   ├── ArticleDetail.jsx    # Original article view
+│   │   ├── CompareView.jsx      # Original vs Enhanced comparison
+│   │   └── Loader.jsx           # Loading indicator
+│   ├── hooks/
+│   │   └── useArticles.js       # Centralized data fetching hook
+│   ├── pages/
+│   │   └── Home.jsx             # Main layout and routing logic
+│   ├── styles/
+│   │   ├── base.css             # Global reset & typography
+│   │   ├── layout.css           # Grid layout & responsiveness
+│   │   └── article.css          # Article & comparison styles
+│   ├── App.jsx                  # Root component
+│   └── main.jsx                 # Application entry point
+├── index.html
+├── vite.config.js
+├── package.json
+├── .env.example
+└── README.md
+```
+
+## Environment Configuration
+
+Create a `.env` file from the example:
+```bash
+cp .env.example .env
+```
+
+`.env` contents:
+```bash
+VITE_API_URL=http://localhost:8000/api
+```
+
+ **The frontend is environment-agnostic and can be deployed independently of the backend.**  
+Change `VITE_API_URL` for staging or production.
+
+## Installation & Running
+```bash
+cd frontend
+npm install
+npm run dev
+```
+
+By default, the app runs at:
+```
+http://localhost:5173
+```
+
+## Application Behavior
+
+### Article List
+- Displays all articles fetched from the backend
+- Shows article title and current status
+- Highlights the selected article
+
+**Status values:**
+- `original` – Not yet enhanced
+- `enhanced` – Processed by AI Worker
+
+### Article View Logic
+- **Original article** → shows original content only
+- **Enhanced article** → shows side-by-side comparison:
+  - Original content
+  - Enhanced content
+  - Displays reference URLs if available
+
+## API Integration
+
+### Endpoints Used
+```
+GET /api/articles
+GET /api/articles/{id}
+```
+
+### Expected Response Shape
+```json
+{
+  "id": 1,
+  "title": "Article Title",
+  "original_content": "<p>...</p>",
+  "enhanced_content": "<p>...</p>",
+  "reference_urls": ["https://example.com"],
+  "status": "enhanced",
+  "enhanced_at": "2025-12-23T08:24:47Z"
+}
+```
+
+**The frontend is resilient to**:
+- Missing enhanced content
+- Missing references
+- Empty article lists
+
+### CORS Requirements
+
+Ensure Laravel allows frontend access:
+
+**`config/cors.php`**
+```php
+'paths' => ['api/*'],
+'allowed_origins' => [
+  'http://localhost:5173',
+  'http://127.0.0.1:5173'
+],
+```
+
+⚠️ Restart Laravel after updating CORS.
+
+## UX & Design Decisions
+
+- **No UI libraries** – Demonstrates CSS fundamentals
+- **No routing libraries** – Single-page flow is sufficient
+- **No IDs shown in UI** – Cleaner, production-grade UX
+- **Explicit empty states** – Avoids confusing blank screens
+- **Side-by-side comparison** – Clear value demonstration
+- **Minimal animation** – Focus on content, not distraction
+
+## Known Limitations
+
+- Read-only interface (no editing)
+- No authentication or roles
+- No pagination (all articles loaded)
+- Assumes HTML content is safe (trusted backend)
+
+These are intentional trade-offs for assignment scope.
+
+## Testing Checklist
+```bash
+# Backend running
+curl http://localhost:8000/api/articles
+
+# Frontend running
+npm run dev
+```
