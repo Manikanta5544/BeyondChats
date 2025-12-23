@@ -34,6 +34,23 @@ main {
   box-shadow: var(--shadow-sm);
 }
 
+.app-header {
+  padding: 1.5rem 2rem;
+  border-bottom: 1px solid #e0e0e0;
+  background: #fff;
+}
+
+.app-header h1 {
+  font-size: 1.6rem;
+  margin-bottom: 0.25rem;
+}
+
+.app-header .subtitle {
+  color: #666;
+  font-size: 0.95rem;
+}
+
+
 
 @media (max-width: 1024px) {
   .layout {

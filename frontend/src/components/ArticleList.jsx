@@ -12,9 +12,18 @@ export default function ArticleList({ articles, onSelect, selectedId }) {
           onClick={() => onSelect(article.id)}
         >
           <h4>{article.title}</h4>
-          <span className={`status-badge ${article.status}`}>
-            {article.status}
-          </span>
+
+          <div className="meta">
+            <span className={`status-badge ${article.status}`}>
+              {article.status}
+            </span>
+
+            {article.enhanced_at && (
+              <span className="timestamp">
+                Enhanced {new Date(article.enhanced_at).toLocaleDateString()}
+              </span>
+            )}
+          </div>
         </li>
       ))}
     </ul>

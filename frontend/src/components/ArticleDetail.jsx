@@ -1,6 +1,14 @@
 export default function ArticleDetail({ article }) {
   if (!article) {
-    return <div className="empty-state">Select an article</div>;
+    return (
+        <div className="empty-state">
+            <p><strong>Select an article</strong></p>
+            <p>
+                Choose an article from the list to view its original
+                or enhanced content.
+            </p>
+        </div>
+    );
   }
 
   return (

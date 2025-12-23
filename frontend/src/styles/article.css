@@ -99,10 +99,25 @@
   margin-bottom: 1rem;
 }
 
+.article-detail,
+.compare-grid {
+  max-width: 920px;
+}
+
 .compare-grid h3 {
   margin-bottom: 1rem;
   padding-bottom: 0.5rem;
   border-bottom: 1px solid var(--border-light);
+}
+
+.compare-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
+}
+
+.compare-grid > div:last-child {
+  border-left: 4px solid #2e7d32;
 }
 
 .references {

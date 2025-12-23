@@ -1,4 +1,22 @@
 export default function CompareView({ article }) {
+  if (!article?.enhanced_content) {
+    return (
+      <div className="empty-state">
+        <h3>{article.title}</h3>
+        <p>This article has not been enhanced yet.</p>
+        <p style={{ fontSize: '0.9rem', color: '#888' }}>
+          Run the AI Worker to generate enhanced content.
+        </p>
+
+        <div
+          className="content"
+          style={{ marginTop: '1.5rem' }}
+          dangerouslySetInnerHTML={{ __html: article.original_content }}
+        />
+      </div>
+    );
+  }
+
   return (
     <div>
       <h2>{article.title}</h2>
