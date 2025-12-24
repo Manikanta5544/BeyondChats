@@ -4,13 +4,30 @@ namespace App\Http\Controllers;
 
 use App\Models\Article;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Artisan;
+
 
 class ArticleController extends Controller
 {
     public function index()
     {
-        return Article::latest()->get();
+        if (Article::count() === 0 && !cache()->has('beyondchats_scraped')) {
+            try {
+                Artisan::call('scrape:blogs', [
+                    '--limit' => 5,
+                ]);
+
+                cache()->forever('beyondchats_scraped', true);
+            } catch (\Throwable $e) {
+                logger()->error('Initial blog scrape failed', [
+                    'error' => $e->getMessage(),
+                ]);
+            }
+        }
+
+        return Article::orderBy('created_at')->get();
     }
+
 
     public function show(Article $article)
     {
